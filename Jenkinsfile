@@ -26,9 +26,9 @@ pipeline {
                     variable: 'DOCKER_PAT'
                 )]) {
                     bat '''
-                    @echo off
-                    echo %DOCKER_PAT%|docker login -u arundathi23hn --password-stdin
-                   if errorlevel 1 exit /b 1
+                        @echo off
+                        echo %DOCKER_PAT%| docker login -u arundathi23hn --password-stdin
+                        if errorlevel 1 exit /b 1
                     '''
                 }
             }
@@ -49,4 +49,5 @@ pipeline {
             echo 'Pipeline failed. Check Console Output.'
         }
     }
+}
 }
