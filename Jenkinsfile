@@ -3,29 +3,33 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "arundathi23hn/app"
+        DOCKER_IMAGE = "akshatha29/docimg"
     }
 
     stages {
+        stage('Clone Repository') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/akshatha1990M/docker2026.git'
+            }
+        }
 
         stage('Build Docker Image') {
             steps {
-                script {
-                    docker.build("${DOCKER_IMAGE}:latest")
-                }
+                bat 'docker build -t %DOCKER_IMAGE%:latest .'
             }
         }
 
         stage('Login to Docker Hub') {
             steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub-PAT2',
-                    usernameVariable: 'DOCKER_USER',
-                    passwordVariable: 'DOCKER_PASS'
+                withCredentials([string(
+                    credentialsId: 'dockerhub-PAT',
+                    variable: 'DOCKER_PAT'
                 )]) {
                     bat '''
-                        powershell -NoProfile -NonInteractive -Command "$env:DOCKER_PASS | docker login -u $env:DOCKER_USER --password-stdin"
-                        if errorlevel 1 exit /b 1
+                    @echo off
+                    echo %DOCKER_PAT%|docker login -u akshatha29 --password-stdin
+                   if errorlevel 1 exit /b 1
                     '''
                 }
             }
@@ -33,24 +37,17 @@ pipeline {
 
         stage('Push Docker Image') {
             steps {
-                script {
-                    docker.image("${DOCKER_IMAGE}:latest").push()
-                }
+                bat 'docker push %DOCKER_IMAGE%:latest'
             }
         }
     }
 
     post {
         success {
-            echo 'Image successfully built and pushed to Docker Hub!'
+            echo 'Docker image built and pushed successfully.'
         }
-
         failure {
-            echo 'Pipeline failed. Check Console Output for errors.'
-        }
-
-        always {
-            echo 'CI/CD pipeline execution completed.'
+            echo 'Pipeline failed. Check Console Output.'
         }
     }
 }
